@@ -1,0 +1,8 @@
+{
+    "name": "ReplaceAudioPlugin",
+    "author": "Obliquo",
+    "description": "Changes the classic, monotonous ringtone to the 0.1% one",
+    "version": "0.0.1",
+
+    "entry": "index"
+}

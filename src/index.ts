@@ -1,5 +1,5 @@
 import { name as pluginName } from "./plugin.json";
-const { Patcher, Webpack } = BdApi;
+const { Patcher, UI: { showToast }, Webpack } = BdApi;
 
 
 const AudioNames = {
@@ -16,8 +16,21 @@ function replaceAudio(useCoolRingtone: boolean): void
     let isRingtonePatched = false;
     Patcher.unpatchAll(pluginName);
     Patcher.before(pluginName, playRingtoneModule, "Z", (_, args: any) => !isRingtonePatched && args?.[1]?.length && (args[1] = []));
-    Patcher.before(pluginName, playSoundModule, "tu", (_, args) => args?.[0] === AudioNames.notsocoolRingtone &&
-        (args[0] = AudioNames[useCoolRingtone ? "coolRingtone" : "notsocoolRingtone"]) && (isRingtonePatched = true));
+    Patcher.before(pluginName, playSoundModule, "tu", (_, args) =>
+    {
+        if(args?.[0] === AudioNames.notsocoolRingtone)
+        {
+            args[0] = AudioNames[useCoolRingtone ? "coolRingtone" : "notsocoolRingtone"];
+            isRingtonePatched = true;
+        }
+        else if(args?.[0] === AudioNames.coolRingtone)
+        {
+            showToast(
+                "wooo, you legit got the rare ringtone. I'd brag about it in BetterDiscord server",
+                { forceShow: true, type: "success", timeout: 10e3, icon: false }
+            );
+        }
+    });
 }
 
 export default class

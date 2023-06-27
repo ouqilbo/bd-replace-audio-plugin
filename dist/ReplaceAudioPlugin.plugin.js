@@ -35,7 +35,7 @@
 const name = "ReplaceAudioPlugin";
 
 // index.ts
-const { Patcher, Webpack } = BdApi;
+const { Patcher, UI: { showToast }, Webpack } = BdApi;
 const AudioNames = {
 	notsocoolRingtone: "call_ringing",
 	coolRingtone: "call_ringing_beat",
@@ -47,7 +47,17 @@ function replaceAudio(useCoolRingtone) {
 	let isRingtonePatched = false;
 	Patcher.unpatchAll(name);
 	Patcher.before(name, playRingtoneModule, "Z", (_, args) => !isRingtonePatched && args?.[1]?.length && (args[1] = []));
-	Patcher.before(name, playSoundModule, "tu", (_, args) => args?.[0] === AudioNames.notsocoolRingtone && (args[0] = AudioNames[useCoolRingtone ? "coolRingtone" : "notsocoolRingtone"]) && (isRingtonePatched = true));
+	Patcher.before(name, playSoundModule, "tu", (_, args) => {
+		if (args?.[0] === AudioNames.notsocoolRingtone) {
+			args[0] = AudioNames[useCoolRingtone ? "coolRingtone" : "notsocoolRingtone"];
+			isRingtonePatched = true;
+		} else if (args?.[0] === AudioNames.coolRingtone) {
+			showToast(
+				"wooo, you legit got the rare ringtone. I'd brag about it in BetterDiscord server",
+				{ forceShow: true, type: "success", timeout: 1e4, icon: false }
+			);
+		}
+	});
 }
 class index {
 	start = () => replaceAudio(true);

@@ -1,7 +1,7 @@
 {
   "name": "bd-replace-audio-plugin",
   "version": "0.0.1",
-  "description": "Changes the classic, monotonous ringtone to the 0.1% one",
+  "description": "Gives the possibility of changing the classic, monotonous ringtone to another one",
   "main": "",
   "scripts": {
     "build": "npx bundlebd"

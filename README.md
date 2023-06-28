@@ -1,4 +1,4 @@
 # bd-replace-audio-plugin
-Changes the classic, monotonous ringtone to the 0.1% one
+Gives the possibility of changing the classic, monotonous ringtone to another one
  
 Bundled with bundlebd

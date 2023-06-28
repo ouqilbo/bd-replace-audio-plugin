@@ -4,12 +4,10 @@ const { Patcher, UI: { showToast }, Webpack } = BdApi;
 
 const AudioNames = {
     notsocoolRingtone: "call_ringing",
-    coolRingtone: "call_ringing_beat",
-    discordo: "discodo"
+    coolRingtone: "call_ringing_beat"
 };
 const playRingtoneModule = Webpack.getModule(m => typeof m.Z === "function" && m.Z.toString().includes("else if(!function("));
 const playSoundModule = Webpack.getByKeys("tu", "uk", "GN");
-// const playSound = (audio: keyof typeof AudioNames): any => playSoundModule.GN(AudioNames[audio]);
 
 function replaceAudio(useCoolRingtone: boolean): void
 {

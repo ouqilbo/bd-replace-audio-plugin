@@ -1,5 +1,7 @@
+import audioIconOn from "./icons/audioIconOn.png";
+import audioIconOff from "./icons/audioIconOff.png";
 import { name as pluginName } from "./plugin.json";
-const { Data } = BdApi;
+const { Data, React, Webpack: { getModule } } = BdApi;
 
 
 
@@ -89,17 +91,61 @@ const AudioNames = [
 type AudioNames = typeof AudioNames[number];
 
 
-const onOptionChange = (settings: SettingsDefault, key: SettingsDefaultKeys, event: any) => SettingsUtils.changeValue(settings, key, event.target.value);
+const audioFilenameResolver = getModule(m => m.id && m.keys?.().some((r: string) => r.endsWith(".mp3")));
+const resolveAudioFilename = (audioName: string) => audioFilenameResolver(audioName);
+
+let currentPlayingAudio: HTMLAudioElement | undefined;
+let isButtonMuted: [boolean, Function] = [false, () => isButtonMuted[0]];
+const onOptionChange = (settings: SettingsDefault, key: SettingsDefaultKeys, event: any) =>
+{
+    SettingsUtils.changeValue(settings, key, event.target.value);
+
+    if(key === "ringtone" && !isButtonMuted[1]())
+    {
+        if(currentPlayingAudio)
+        {
+            currentPlayingAudio.pause();
+            currentPlayingAudio.currentTime = 0;
+            currentPlayingAudio = undefined;
+        }
+
+        currentPlayingAudio = new Audio(resolveAudioFilename(`./${event.target.value}.mp3`));
+        currentPlayingAudio.play();
+    }
+};
+const ButtonComponent = () =>
+{
+    const [buttonState, setButtonState] = React.useState(false);
+
+    const handleClick = () =>
+    {
+        setButtonState(!buttonState);
+        isButtonMuted[0] = !isButtonMuted[0];
+
+        if(isButtonMuted[1]() && currentPlayingAudio)
+        {
+            currentPlayingAudio.pause();
+            currentPlayingAudio.currentTime = 0;
+            currentPlayingAudio = undefined;
+        }
+    };
+
+    return (
+        <button onClick={handleClick}>
+            <img src={!buttonState ? audioIconOn : audioIconOff} style={{ width: "auto", height: "22px" }} />
+        </button>
+    );
+};
 
 export const getSettingsUI = (settings: SettingsDefault) => (
-    <div>
-        <select onChange={(event) => onOptionChange(settings, "ringtone", event)} className="choice"> {
+    <div style={{ display: "flex", alignItems: "center" }}>
+        <select onChange={(event) => onOptionChange(settings, "ringtone", event)} className="choice" style={{ height: "30px" }}> {
             AudioNames.map(v => (
-                <option value={v}>{v}</option>
+                <option value={v} style={{ height: "30px" }}>{v}</option>
             ))
         }
         </select>
 
-        <button>test</button>
+        <ButtonComponent />
     </div>
 );
